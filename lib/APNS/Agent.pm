@@ -62,7 +62,7 @@ sub to_app {
             }
             else {
                 infof "[apns] push queue";
-                push @{$self->_gueue}, [$token, $payload];
+                push @{$self->_queue}, [$token, $payload];
                 $self->_connect_to_apns;
             }
             return [200, [], ['Accepted']];
@@ -101,8 +101,8 @@ sub _connect_to_apns {
             infof "[apns] on_connect";
             $self->_last_connected_at(time);
 
-            if (@{$self->_gueue}) {
-                while (my $q = shift @{$self->_gueue}) {
+            if (@{$self->_queue}) {
+                while (my $q = shift @{$self->_queue}) {
                     $self->_send(@$q);
                     infof "[apns] send from queue ".$q->[0];
                 }
@@ -115,8 +115,8 @@ sub _connect_to_apns {
         },
     ));
 
-    if ($self->debug_apns_port) {
-        $self->_apns->debug_port($self->debug_apns_port);
+    if ($self->debug_port) {
+        $self->_apns->debug_port($self->debug_port);
     }
 
     $self->_apns->connect;

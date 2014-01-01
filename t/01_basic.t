@@ -79,10 +79,10 @@ test_tcp (
         local $Log::Minimal::LOG_LEVEL = "NONE";
 
         my $s = APNS::Agent->new({
-            sandbox         => 1,
-            certificate     => 'dummy',
-            private_key     => 'dummy',
-            debug_apns_port => $apns_port,
+            sandbox     => 1,
+            certificate => 'dummy',
+            private_key => 'dummy',
+            debug_port  => $apns_port,
         })->run(
             port => $port,
         );
