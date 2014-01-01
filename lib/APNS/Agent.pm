@@ -8,8 +8,8 @@ our $VERSION = "0.01";
 use AnyEvent::APNS;
 use Cache::LRU;
 use Encode qw/decode_utf8/;
-use Log::Minimal;
 use JSON::XS;
+use Log::Minimal;
 use Plack::Request;
 
 use Class::Accessor::Lite::Lazy 0.03 (
@@ -145,6 +145,16 @@ sub _send {
     $self->_sent_token->set($identifier, $token);
     $self->_last_sent_at(time);
     $identifier;
+}
+
+sub run {
+    my $self = shift;
+    my %args = @_ == 1 ? %{$_[0]} : @_;
+    if (!$args{listen} && !$args{port}) {
+        $args{port} = 4905;
+    }
+    require Plack::Loader;
+    Plack::Loader->load(Twiggy => %args)->run($self->to_app);
 }
 
 1;
