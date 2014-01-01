@@ -2,16 +2,17 @@ use strict;
 use warnings;
 use Test::More;
 use Test::TCP;
+
+use AnyEvent;
 use AnyEvent::Socket;
 use Furl;
 
 use JSON::XS;
 use APNS::Agent;
 
-my $apns_port;
 my $cv = AnyEvent->condvar;
 
-$apns_port = empty_port;
+my $apns_port = empty_port;
 tcp_server undef, $apns_port, sub {
     my ($fh) = @_
         or die $!;
@@ -91,17 +92,14 @@ test_tcp (
         my $port = shift;
 
         my $furl = Furl->new;
-
         my $res = $furl->post(
             'http://localhost:'.$port,
             [],
             [
-                token => 'd'x32,
+                token => unpack("H*", 'd'x32),
                 alert => 'test',
             ],
         );
         $cv->recv;
     },
 );
-
-
