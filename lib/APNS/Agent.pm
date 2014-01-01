@@ -18,7 +18,6 @@ use Class::Accessor::Lite::Lazy 0.03 (
         certificate
         private_key
         sandbox
-        reconnect_interval
         debug_port
     /],
     ro_lazy => {
