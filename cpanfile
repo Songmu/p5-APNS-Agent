@@ -18,7 +18,6 @@ on configure => sub {
 on test => sub {
     requires 'AnyEvent';
     requires 'AnyEvent::Socket';
-    requires 'Furl';
     requires 'HTTP::Request::Common';
     requires 'Plack::Test';
     requires 'Test::More', '0.98';
