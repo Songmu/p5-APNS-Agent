@@ -56,7 +56,7 @@ sub to_app {
             }
             return [400, [], ['BAD REQUEST']] unless $payload;
 
-            if ($self->{_apns} && $self->_apns->connected) {
+            if ($self->_apns && $self->_apns->connected) {
                 $self->_send($token, $payload);
                 infof "[server] payload accepted. token: %s", $token;
             }
@@ -75,7 +75,7 @@ sub to_app {
 sub _build_apns {
     my $self = shift;
 
-    my $apns = AnyEvent::APNS->new(
+    AnyEvent::APNS->new(
         certificate => $self->certificate,
         private_key => $self->private_key,
         sandbox     => $self->sandbox,
@@ -126,8 +126,6 @@ sub _build_apns {
         },
         ($self->debug_port ? (debug_port => $self->debug_port) : ()),
     );
-    $apns->connect;
-    $apns;
 }
 
 sub _connect_to_apns {
