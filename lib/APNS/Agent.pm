@@ -25,8 +25,9 @@ use Class::Accessor::Lite::Lazy 0.03 (
         disconnect_interval => sub { 60 },
         _sent_token         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
+        _apns               => '_build_apns',
     },
-    rw => [qw/_apns _last_connected_at _last_sent_at/],
+    rw => [qw/_last_connected_at _last_sent_at/],
 );
 
 sub to_app {
@@ -55,7 +56,7 @@ sub to_app {
             }
             return [400, [], ['BAD REQUEST']] unless $payload;
 
-            if ($self->_apns && $self->_apns->connected) {
+            if ($self->{_apns} && $self->_apns->connected) {
                 $self->_send($token, $payload);
                 infof "[server] send notify complete %s", $token;
             }
@@ -71,12 +72,10 @@ sub to_app {
     };
 }
 
-sub _connect_to_apns {
+sub _build_apns {
     my $self = shift;
 
-    return if $self->_apns && $self->_apns->connected;
-
-    $self->_apns(AnyEvent::APNS->new(
+    my $apns = AnyEvent::APNS->new(
         certificate => $self->certificate,
         private_key => $self->private_key,
         sandbox     => $self->sandbox,
@@ -126,9 +125,16 @@ sub _connect_to_apns {
             $self->on_error_response->($token, @_);
         },
         ($self->debug_port ? (debug_port => $self->debug_port) : ()),
-    ));
+    );
+    $apns->connect;
+    $apns;
+}
 
-    $self->_apns->connect;
+sub _connect_to_apns {
+    my $self = shift;
+
+    my $apns = $self->_apns;
+    $apns->connect unless $apns->connected;
 }
 
 sub _send {
