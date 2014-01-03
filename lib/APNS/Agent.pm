@@ -74,7 +74,7 @@ sub to_app {
 sub _connect_to_apns {
     my $self = shift;
 
-    return if $self->_apns;
+    return if $self->_apns && $self->_apns->connected;
 
     $self->_apns(AnyEvent::APNS->new(
         certificate => $self->certificate,
@@ -89,7 +89,7 @@ sub _connect_to_apns {
                 cb       => sub {
                     undef $t;
                     infof "[apns] reconnect";
-                    $self->_apns->connect;
+                    $self->_connect_to_apns;
                 },
             );
 
