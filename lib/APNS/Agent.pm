@@ -21,7 +21,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
         debug_port
     /],
     ro_lazy => {
-        on_error_response   => sub { sub { warnf "token:$_[0]\tidentifier:$_[1]\tstate:$_[2]" } },
+        on_error_response   => sub { sub { warnf "identifier:$_[0]\tstate:$_[1]\ttoken:$_[2]" } },
         disconnect_interval => sub { 60 },
         _sent_token         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
@@ -108,8 +108,8 @@ sub _build_apns {
         },
         on_error_response => sub {
             my ($identifier, $state) = @_;
-            my $token = $self->_sent_token->get($identifier) || undef;
-            $self->on_error_response->($token, @_);
+            my $token = $self->_sent_token->get($identifier) || '';
+            $self->on_error_response->(@_, $token);
         },
         ($self->debug_port ? (debug_port => $self->debug_port) : ()),
     );
