@@ -21,9 +21,15 @@ use Class::Accessor::Lite::Lazy 0.03 (
         debug_port
     /],
     ro_lazy => {
-        on_error_response   => sub { sub { warnf "identifier:$_[0]\tstate:$_[1]\ttoken:$_[2]" } },
+        on_error_response   => sub {
+            sub {
+                my $self = shift;
+                my %d = %{$_[0]};
+                warnf "identifier:%s\tstate:%s\ttoken:%s", $d{identifier}, $d{state}, $d{token} || '';
+            }
+        },
         disconnect_interval => sub { 60 },
-        _sent_token         => sub { Cache::LRU->new(size => 10000) },
+        _sent_cache         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
         __apns              => '_build_apns',
     },
@@ -58,10 +64,10 @@ sub to_app {
 
             if ($self->__apns->connected) {
                 $self->_send($token, $payload);
-                infof "[server] payload accepted. token: %s", $token;
+                infof "event:payload accepted\ttoken:%s", $token;
             }
             else {
-                infof "[apns] push queue";
+                infof "event:push queue";
                 push @{$self->_queue}, [$token, $payload];
                 $self->_connect_to_apns;
             }
@@ -87,28 +93,32 @@ sub _build_apns {
                 interval => 10,
                 cb       => sub {
                     undef $t;
-                    infof "[apns] reconnect";
+                    infof "event:reconnect";
                     $self->_connect_to_apns;
                 },
             );
-
-            infof "[apns] error fatal: $fatal message: $message";
+            warnf "event:error\tfatal:$fatal\tmessage:$message";
         },
         on_connect  => sub {
-            infof "[apns] on_connect";
+            infof "event:on_connect";
             $self->_disconnect_timer($self->_build_disconnect_timer);
 
             if (@{$self->_queue}) {
                 while (my $q = shift @{$self->_queue}) {
                     $self->_send(@$q);
-                    infof "[apns] sent from queue. token: ".$q->[0];
+                    infof "event:sent from queue\ttoken:".$q->[0];
                 }
             }
         },
         on_error_response => sub {
             my ($identifier, $state) = @_;
-            my $token = $self->_sent_token->get($identifier) || '';
-            $self->on_error_response->(@_, $token);
+            my $data = $self->_sent_cache->get($identifier) || {};
+            $self->on_error_response->($self, {
+                identifier => $identifier,
+                state      => $state,
+                token      => $data->{token},
+                payload    => $data->{payload},
+            });
         },
         ($self->debug_port ? (debug_port => $self->debug_port) : ()),
     );
@@ -134,7 +144,7 @@ sub _build_disconnect_timer {
                 if ($self->{__apns} && (time - ($self->_last_sent_at || 0) > $interval)) {
                     delete $self->{__apns};
                     delete $self->{_disconnect_timer};
-                    infof "[apns] close apns";
+                    infof "event:close apns";
                 }
             },
         );
@@ -148,7 +158,10 @@ sub _send {
     my $identifier = $self->_apns->send(pack("H*", $token) => {
         aps => $payload,
     });
-    $self->_sent_token->set($identifier, $token);
+    $self->_sent_cache->set($identifier => {
+        token   => $token,
+        payload => $payload,
+    });
     $self->_last_sent_at(time);
     $identifier;
 }

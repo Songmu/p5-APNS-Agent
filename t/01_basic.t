@@ -80,7 +80,7 @@ test_psgi
         $cv->recv;
 
         ok $apns_agent->__apns->connected;
-        ok %{ $apns_agent->_sent_token->{_entries} };
+        ok %{ $apns_agent->_sent_cache->{_entries} };
     };
 
 done_testing;
