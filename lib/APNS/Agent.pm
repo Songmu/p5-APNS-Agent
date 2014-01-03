@@ -89,7 +89,6 @@ sub _connect_to_apns {
                 cb       => sub {
                     undef $t;
                     infof "[apns] reconnect";
-                    $self->_last_connected_at(time);
                     $self->_apns->connect;
                 },
             );
@@ -99,6 +98,20 @@ sub _connect_to_apns {
         on_connect  => sub {
             infof "[apns] on_connect";
             $self->_last_connected_at(time);
+
+            if (my $interval = $self->disconnect_interval) {
+                my $t; $t = AnyEvent->timer(
+                    after    => $interval,
+                    interval => $interval,
+                    cb       => sub {
+                        if ($self->{_apns} && (time - ($self->_last_sent_at || 0) > $interval)) {
+                            delete $self->{_apns};
+                            infof "[apns] close apns";
+                            undef $t;
+                        }
+                    },
+                );
+            }
 
             if (@{$self->_queue}) {
                 while (my $q = shift @{$self->_queue}) {
@@ -116,20 +129,6 @@ sub _connect_to_apns {
     ));
 
     $self->_apns->connect;
-
-    if (my $interval = $self->disconnect_interval) {
-        my $t; $t = AnyEvent->timer(
-            after    => $interval,
-            interval => $interval,
-            cb       => sub {
-                if ($self->_apns && (time - ($self->_last_sent_at || 0) > $interval)) {
-                    delete $self->{_apns};
-                    infof "[apns] close apns";
-                    undef $t;
-                }
-            },
-        );
-    }
 }
 
 sub _send {
