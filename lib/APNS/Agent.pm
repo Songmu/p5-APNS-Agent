@@ -112,11 +112,8 @@ sub _connect_to_apns {
             my $token = $self->_sent_token->get($identifier) || undef;
             $self->on_error_response->($token, @_);
         },
+        ($self->debug_port ? (debug_port => $self->debug_port) : ()),
     ));
-
-    if ($self->debug_port) {
-        $self->_apns->debug_port($self->debug_port);
-    }
 
     $self->_apns->connect;
 
