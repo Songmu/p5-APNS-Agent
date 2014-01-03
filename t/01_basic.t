@@ -1,7 +1,10 @@
 use strict;
 use warnings;
+use utf8;
 use Test::More;
 use Test::TCP;
+use Plack::Test;
+use HTTP::Request::Common;
 
 use AnyEvent;
 use AnyEvent::Socket;
@@ -59,47 +62,35 @@ tcp_server undef, $apns_port, sub {
             my $p = decode_json($payload);
 
             is(length $payload, $payload_length, 'payload length ok');
-            is $p->{aps}->{alert}, 'test', 'value of alert';
+            is $p->{aps}->{alert}, 'ほげ', 'value of alert';
         });
 
         my $t; $t = AnyEvent->timer(
             after => 0.5,
             cb    => sub {
                 undef $t;
-                done_testing;
-
                 $cv->send;
             },
         );
     });
 };
 
-test_tcp (
-    server => sub {
-        my $port = shift;
-        local $Log::Minimal::LOG_LEVEL = "NONE";
-
-        my $s = APNS::Agent->new({
-            sandbox     => 1,
-            certificate => 'dummy',
-            private_key => 'dummy',
-            debug_port  => $apns_port,
-        })->run(
-            port => $port,
-        );
-    },
+test_psgi
+    app => APNS::Agent->new({
+          sandbox     => 1,
+          certificate => 'dummy',
+          private_key => 'dummy',
+          debug_port  => $apns_port,
+    })->to_app,
     client => sub {
-        my $port = shift;
+        my $cb  = shift;
 
-        my $furl = Furl->new;
-        my $res = $furl->post(
-            'http://localhost:'.$port,
-            [],
-            [
-                token => unpack("H*", 'd'x32),
-                alert => 'test',
-            ],
-        );
+        my $res = $cb->(POST 'http://localhost', [
+            token => unpack("H*", 'd'x32),
+            alert => 'ほげ',
+        ]);
         $cv->recv;
-    },
-);
+        like $res->content, qr/Accepted/;
+    };
+
+done_testing;
