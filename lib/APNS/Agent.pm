@@ -123,7 +123,7 @@ sub _connect_to_apns {
             interval => $interval,
             cb       => sub {
                 if ($self->_apns && (time - ($self->_last_sent_at || 0) > $interval)) {
-                    delete $self->{apns};
+                    delete $self->{_apns};
                     infof "[apns] close apns";
                     undef $t;
                 }
