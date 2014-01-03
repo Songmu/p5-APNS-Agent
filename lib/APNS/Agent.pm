@@ -21,7 +21,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
         debug_port
     /],
     ro_lazy => {
-        on_error_response   => sub { sub { warn @_ } },
+        on_error_response   => sub { sub { warnf "token:$_[0]\tidentifier:$_[1]\tstate:$_[2]" } },
         disconnect_interval => sub { 60 },
         _sent_token         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
@@ -58,7 +58,7 @@ sub to_app {
 
             if ($self->{_apns} && $self->_apns->connected) {
                 $self->_send($token, $payload);
-                infof "[server] send notify complete %s", $token;
+                infof "[server] payload accepted. token: %s", $token;
             }
             else {
                 infof "[apns] push queue";
@@ -115,7 +115,7 @@ sub _build_apns {
             if (@{$self->_queue}) {
                 while (my $q = shift @{$self->_queue}) {
                     $self->_send(@$q);
-                    infof "[apns] send from queue ".$q->[0];
+                    infof "[apns] sent from queue. token: ".$q->[0];
                 }
             }
         },

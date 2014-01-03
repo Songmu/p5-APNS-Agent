@@ -8,7 +8,6 @@ use HTTP::Request::Common;
 
 use AnyEvent;
 use AnyEvent::Socket;
-use Furl;
 
 use JSON::XS;
 use APNS::Agent;
@@ -25,7 +24,7 @@ tcp_server undef, $apns_port, sub {
         on_eof   => sub {
         },
         on_error => sub {
-            die $!;
+            warn $!;
             undef $handle;
         },
         on_read => sub {
@@ -86,12 +85,14 @@ test_psgi
     client => sub {
         my $cb  = shift;
 
-        my $res = $cb->(POST 'http://localhost', [
+        my $req = POST 'http://localhost', [
             token => unpack("H*", 'd'x32),
             alert => 'ほげ',
-        ]);
-        $cv->recv;
+        ];
+
+        my $res = $cb->($req);
         like $res->content, qr/Accepted/;
+        $cv->recv;
     };
 
 done_testing;
