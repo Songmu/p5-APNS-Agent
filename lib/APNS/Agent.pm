@@ -27,7 +27,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
         _queue              => sub { [] },
         __apns              => '_build_apns',
     },
-    rw => [qw/_last_connected_at _last_sent_at _disconnect_timer/],
+    rw => [qw/_last_sent_at _disconnect_timer/],
 );
 
 sub to_app {
@@ -96,7 +96,6 @@ sub _build_apns {
         },
         on_connect  => sub {
             infof "[apns] on_connect";
-            $self->_last_connected_at(time);
             $self->_disconnect_timer($self->_build_disconnect_timer);
 
             if (@{$self->_queue}) {
