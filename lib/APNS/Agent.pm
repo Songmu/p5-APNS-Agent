@@ -27,7 +27,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
         _queue              => sub { [] },
         __apns              => '_build_apns',
     },
-    rw => [qw/_last_connected_at _last_sent_at/],
+    rw => [qw/_last_connected_at _last_sent_at _disconnect_timer/],
 );
 
 sub to_app {
@@ -97,20 +97,7 @@ sub _build_apns {
         on_connect  => sub {
             infof "[apns] on_connect";
             $self->_last_connected_at(time);
-
-            if (my $interval = $self->disconnect_interval) {
-                my $t; $t = AnyEvent->timer(
-                    after    => $interval,
-                    interval => $interval,
-                    cb       => sub {
-                        if ($self->{__apns} && (time - ($self->_last_sent_at || 0) > $interval)) {
-                            delete $self->{__apns};
-                            infof "[apns] close apns";
-                            undef $t;
-                        }
-                    },
-                );
-            }
+            $self->_disconnect_timer($self->_build_disconnect_timer);
 
             if (@{$self->_queue}) {
                 while (my $q = shift @{$self->_queue}) {
@@ -136,6 +123,25 @@ sub _apns {
     $apns;
 }
 sub _connect_to_apns { goto \&_apns }
+
+sub _build_disconnect_timer {
+    my $self = shift;
+
+    if (my $interval = $self->disconnect_interval) {
+        AnyEvent->timer(
+            after    => $interval,
+            interval => $interval,
+            cb       => sub {
+                if ($self->{__apns} && (time - ($self->_last_sent_at || 0) > $interval)) {
+                    delete $self->{__apns};
+                    delete $self->{_disconnect_timer};
+                    infof "[apns] close apns";
+                }
+            },
+        );
+    }
+    else { undef }
+}
 
 sub _send {
     my ($self, $token, $payload) = @_;
