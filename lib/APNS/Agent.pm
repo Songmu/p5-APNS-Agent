@@ -163,6 +163,7 @@ sub _send {
         payload => $payload,
     });
     $self->_last_sent_at(time);
+    infof "event:send\ttoken:$token\tidentifier:$identifier";
     $identifier;
 }
 
