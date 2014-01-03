@@ -25,7 +25,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
         disconnect_interval => sub { 60 },
         _sent_token         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
-        _apns               => '_build_apns',
+        __apns              => '_build_apns',
     },
     rw => [qw/_last_connected_at _last_sent_at/],
 );
@@ -56,7 +56,7 @@ sub to_app {
             }
             return [400, [], ['BAD REQUEST']] unless $payload;
 
-            if ($self->_apns && $self->_apns->connected) {
+            if ($self->__apns->connected) {
                 $self->_send($token, $payload);
                 infof "[server] payload accepted. token: %s", $token;
             }
@@ -103,8 +103,8 @@ sub _build_apns {
                     after    => $interval,
                     interval => $interval,
                     cb       => sub {
-                        if ($self->{_apns} && (time - ($self->_last_sent_at || 0) > $interval)) {
-                            delete $self->{_apns};
+                        if ($self->{__apns} && (time - ($self->_last_sent_at || 0) > $interval)) {
+                            delete $self->{__apns};
                             infof "[apns] close apns";
                             undef $t;
                         }
@@ -128,12 +128,14 @@ sub _build_apns {
     );
 }
 
-sub _connect_to_apns {
+sub _apns {
     my $self = shift;
 
-    my $apns = $self->_apns;
+    my $apns = $self->__apns;
     $apns->connect unless $apns->connected;
+    $apns;
 }
+sub _connect_to_apns { goto \&_apns }
 
 sub _send {
     my ($self, $token, $payload) = @_;
