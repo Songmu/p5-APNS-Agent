@@ -75,6 +75,7 @@ tcp_server undef, $apns_port, sub {
     });
 };
 
+local $Log::Minimal::LOG_LEVEL = "NONE";
 test_psgi
     app => APNS::Agent->new({
           sandbox     => 1,
