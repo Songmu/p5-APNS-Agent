@@ -75,15 +75,19 @@ tcp_server undef, $apns_port, sub {
 };
 
 local $Log::Minimal::LOG_LEVEL = "NONE";
+
+my $apns_agent = APNS::Agent->new(
+    sandbox     => 1,
+    certificate => 'dummy',
+    private_key => 'dummy',
+    debug_port  => $apns_port,
+);
+
 test_psgi
-    app => APNS::Agent->new({
-          sandbox     => 1,
-          certificate => 'dummy',
-          private_key => 'dummy',
-          debug_port  => $apns_port,
-    })->to_app,
+    app => $apns_agent->to_app,
     client => sub {
         my $cb  = shift;
+        ok !$apns_agent->__apns->connected;
 
         my $req = POST 'http://localhost', [
             token => unpack("H*", 'd'x32),
@@ -93,6 +97,9 @@ test_psgi
         my $res = $cb->($req);
         like $res->content, qr/Accepted/;
         $cv->recv;
+
+        ok $apns_agent->__apns->connected;
+        ok %{ $apns_agent->_sent_token->{_entries} };
     };
 
 done_testing;
