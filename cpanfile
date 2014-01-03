@@ -19,6 +19,8 @@ on test => sub {
     requires 'AnyEvent';
     requires 'AnyEvent::Socket';
     requires 'Furl';
-    requires 'Test::More';
+    requires 'HTTP::Request::Common';
+    requires 'Plack::Test';
+    requires 'Test::More', '0.98';
     requires 'Test::TCP';
 };
