@@ -15,7 +15,7 @@ APNS::Agent - agent server for APNS
 
 APNS::Agent is agent server for APNS. It is also backend class of [apns-agent.pl](http://search.cpan.org/perldoc?apns-agent.pl).
 
-This module provides consistent connection to APNS and cares reconnection. It utilize
+This module provides consistent connection to APNS and cares reconnection. It utilizes
 [AnyEvent::APNS](http://search.cpan.org/perldoc?AnyEvent::APNS) internally.
 
 # SEE ALSO

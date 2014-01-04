@@ -222,7 +222,7 @@ APNS::Agent - agent server for APNS
 
 APNS::Agent is agent server for APNS. It is also backend class of L<apns-agent.pl>.
 
-This module provides consistent connection to APNS and cares reconnection. It utilize
+This module provides consistent connection to APNS and cares reconnection. It utilizes
 L<AnyEvent::APNS> internally.
 
 =head1 SEE ALSO
