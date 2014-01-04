@@ -167,6 +167,29 @@ sub _send {
     $identifier;
 }
 
+sub parse_options {
+    my ($class, @argv) = @_;
+
+    require Getopt::Long;
+    require Pod::Usage;
+    require Hash::Rename;
+
+    my $p = Getopt::Long::Parser->new(
+        config => [qw/posix_default no_ignore_case auto_help pass_through bundling/]
+    );
+    $p->getoptionsfromarray(\@argv, \my %opt, qw/
+        certificate=s
+        private-key=s
+        disconnect-interval=i
+        sandbox!
+        debug-port=i
+    /) or Pod::Usage::pod2usage();
+    Pod::Usage::pod2usage() if !$opt{certificate} || !$opt{'private-key'};
+
+    Hash::Rename::hash_rename(\%opt, code => sub {tr/-/_/});
+    (\%opt, \@argv);
+}
+
 sub run {
     my $self = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
