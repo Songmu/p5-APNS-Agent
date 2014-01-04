@@ -16,15 +16,19 @@ __END__
 
     % apns-agent.pl --certificate=/path/to/certificate --private-key=/path/to/private
     Options:
-        --certificate|s             path to certificate (Required)
-        --private-key|s             path to private key (Required)
-        --disconnect-interval=i     disconnect interval (Default: 60)
-        --sandbox                   sandbox or not      (Default: disable)
-        --debug-port                debug port number   (Optional)
+        --certificate|s          path to certificate (Required)
+        --private-key|s          path to private key (Required)
+        --disconnect-interval=i  disconnect interval (Default: 60)
+        --sandbox                sandbox or not      (Default: disable)
+        --debug-port             debug port number   (Optional)
 
 =head1 DESCRIPTION
 
-APNS::Agent launcher
+L<APNS::Agent> launcher
+
+=head1 SEE ALSO
+
+L<APNS::Agent>
 
 =head1 AUTHORS
 

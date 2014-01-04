@@ -207,15 +207,27 @@ __END__
 
 =head1 NAME
 
-APNS::Agent - It's new $module
+APNS::Agent - agent server for APNS
 
 =head1 SYNOPSIS
 
     use APNS::Agent;
+    my $agent = APNS::Agent->new(
+        certificate => '/path/to/certificate',
+        private_key => '/path/to/private_key',
+    );
+    $agent->run;
 
 =head1 DESCRIPTION
 
-APNS::Agent is ...
+APNS::Agent is agent server for APNS. It is also backend class of L<apns-agent.pl>.
+
+This module provides consistent connection to APNS and cares reconnection. It utilize
+L<AnyEvent::APNS> internally.
+
+=head1 SEE ALSO
+
+L<AnyEvent::APNS>
 
 =head1 LICENSE
 

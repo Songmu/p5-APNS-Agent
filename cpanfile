@@ -2,17 +2,18 @@ requires 'AnyEvent::APNS';
 requires 'Cache::LRU';
 requires 'Class::Accessor::Lite::Lazy', '0.03';
 requires 'Encode';
+requires 'Hash::Rename';
 requires 'JSON::XS';
 requires 'Log::Minimal';
 requires 'Plack::Loader';
 requires 'Plack::Request';
 requires 'feature';
+requires 'perl', '5.010_000';
 
 on configure => sub {
     requires 'CPAN::Meta';
     requires 'CPAN::Meta::Prereqs';
     requires 'Module::Build';
-    requires 'perl', '5.008_001';
 };
 
 on test => sub {
