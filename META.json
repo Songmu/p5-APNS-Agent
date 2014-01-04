@@ -53,7 +53,7 @@
             "Plack::Loader" : "0",
             "Plack::Request" : "0",
             "feature" : "0",
-            "perl" : "5.010_000"
+            "perl" : "5.010"
          }
       },
       "test" : {

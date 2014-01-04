@@ -18,10 +18,12 @@ APNS::Agent is agent server for APNS. It is also backend class of [apns-agent](h
 This module provides consistent connection to APNS and cares reconnection. It utilizes
 [AnyEvent::APNS](http://search.cpan.org/perldoc?AnyEvent::APNS) internally.
 
+__THE SOFTWARE IS ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.__
+
 # API PARAMETERS
 
 APNS::Agent launches HTTP Server process which accepts only POST method and
-application/x-www-form-urlencoded format parameters.
+`application/x-www-form-urlencoded` format parameters.
 
 Acceptable parameters as follows:
 
@@ -35,7 +37,7 @@ Acceptable parameters as follows:
     `alert` parameter.
 
     One of `payload` and `alert` must be supplied. Both of `payload` and `alert` are specified,
-    the `payload` paramter has priority.
+    the `payload` parameter has priority.
 
 - `alert`
 
@@ -47,7 +49,7 @@ Acceptable parameters as follows:
 
 # THANKS
 
-Tnank __shin1rosei__ that many code of this module is teken from
+Tnank __@shin1rosei__ that many code of this module is taken from
 [https://github.com/shin1rosei/AnyEvent-APNS-Server](https://github.com/shin1rosei/AnyEvent-APNS-Server).
 
 # LICENSE
