@@ -170,7 +170,7 @@ sub _send {
 sub run {
     my $self = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
-    if (!$args{listen} && !$args{port}) {
+    if (!$args{listen} && !$args{port} && !$ENV{SERVER_STARTER_PORT}) {
         $args{port} = 4905;
     }
     require Plack::Loader;
