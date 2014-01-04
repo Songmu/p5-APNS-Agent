@@ -13,7 +13,7 @@ APNS::Agent - agent server for APNS
 
 # DESCRIPTION
 
-APNS::Agent is agent server for APNS. It is also backend class of [apns-agent.pl](http://search.cpan.org/perldoc?apns-agent.pl).
+APNS::Agent is agent server for APNS. It is also backend class of [apns-agent](http://search.cpan.org/perldoc?apns-agent).
 
 This module provides consistent connection to APNS and cares reconnection. It utilizes
 [AnyEvent::APNS](http://search.cpan.org/perldoc?AnyEvent::APNS) internally.
@@ -27,22 +27,28 @@ Acceptable parameters as follows:
 
 - `token`
 
-    device token (HEX format)
+    device token by HEX format. (Required)
 
 - `payload`
 
     JSON string for push notification. If you only want to send message, alternatively can use
     `alert` parameter.
 
-    Both of `payload` and `alert` are specified, the `payload` paramter has priority.
+    One of `payload` and `alert` must be supplied. Both of `payload` and `alert` are specified,
+    the `payload` paramter has priority.
 
 - `alert`
 
-    Optional. push notification message.
+    push notification message.
 
 # SEE ALSO
 
 [AnyEvent::APNS](http://search.cpan.org/perldoc?AnyEvent::APNS)
+
+# THANKS
+
+Tnank __shin1rosei__ that many code of this module is teken from
+[https://github.com/shin1rosei/AnyEvent-APNS-Server](https://github.com/shin1rosei/AnyEvent-APNS-Server).
 
 # LICENSE
 

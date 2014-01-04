@@ -220,7 +220,7 @@ APNS::Agent - agent server for APNS
 
 =head1 DESCRIPTION
 
-APNS::Agent is agent server for APNS. It is also backend class of L<apns-agent.pl>.
+APNS::Agent is agent server for APNS. It is also backend class of L<apns-agent>.
 
 This module provides consistent connection to APNS and cares reconnection. It utilizes
 L<AnyEvent::APNS> internally.
@@ -236,24 +236,30 @@ Acceptable parameters as follows:
 
 =item C<token>
 
-device token (HEX format)
+device token by HEX format. (Required)
 
 =item C<payload>
 
 JSON string for push notification. If you only want to send message, alternatively can use
 C<alert> parameter.
 
-Both of C<payload> and C<alert> are specified, the C<payload> paramter has priority.
+One of C<payload> and C<alert> must be supplied. Both of C<payload> and C<alert> are specified,
+the C<payload> paramter has priority.
 
 =item C<alert>
 
-Optional. push notification message.
+push notification message.
 
 =back
 
 =head1 SEE ALSO
 
 L<AnyEvent::APNS>
+
+=head1 THANKS
+
+Tnank B<shin1rosei> that many code of this module is teken from
+L<https://github.com/shin1rosei/AnyEvent-APNS-Server>.
 
 =head1 LICENSE
 
