@@ -49,7 +49,7 @@ Acceptable parameters as follows:
 
 # THANKS
 
-Tnank __@shin1rosei__ that many code of this module is taken from
+Thank __@shin1rosei__ that many code of this module is taken from
 [https://github.com/shin1rosei/AnyEvent-APNS-Server](https://github.com/shin1rosei/AnyEvent-APNS-Server).
 
 # LICENSE

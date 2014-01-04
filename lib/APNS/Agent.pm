@@ -260,7 +260,7 @@ L<AnyEvent::APNS>
 
 =head1 THANKS
 
-Tnank B<@shin1rosei> that many code of this module is taken from
+Thank B<@shin1rosei> that many code of this module is taken from
 L<https://github.com/shin1rosei/AnyEvent-APNS-Server>.
 
 =head1 LICENSE
