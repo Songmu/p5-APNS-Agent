@@ -225,6 +225,32 @@ APNS::Agent is agent server for APNS. It is also backend class of L<apns-agent.p
 This module provides consistent connection to APNS and cares reconnection. It utilizes
 L<AnyEvent::APNS> internally.
 
+=head1 API PARAMETERS
+
+APNS::Agent launches HTTP Server process which accepts only POST method and
+application/x-www-form-urlencoded format parameters.
+
+Acceptable parameters as follows:
+
+=over
+
+=item C<token>
+
+device token (HEX format)
+
+=item C<payload>
+
+JSON string for push notification. If you only want to send message, alternatively can use
+C<alert> parameter.
+
+Both of C<payload> and C<alert> are specified, the C<payload> paramter has priority.
+
+=item C<alert>
+
+Optional. push notification message.
+
+=back
+
 =head1 SEE ALSO
 
 L<AnyEvent::APNS>
