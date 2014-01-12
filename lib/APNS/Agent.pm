@@ -62,14 +62,16 @@ sub to_app {
             }
             return [400, [], ['BAD REQUEST']] unless $payload;
 
-            if ($self->__apns->connected) {
-                $self->_send($token, $payload);
-                infof "event:payload accepted\ttoken:%s", $token;
-            }
-            else {
-                infof "event:push queue";
-                push @{$self->_queue}, [$token, $payload];
-                $self->_connect_to_apns;
+            for my $t (split /,/, $token) {
+                if ($self->__apns->connected) {
+                    $self->_send($t, $payload);
+                    infof "event:payload accepted\ttoken:%s", $t;
+                }
+                else {
+                    infof "event:push queue";
+                    push @{$self->_queue}, [$t, $payload];
+                    $self->_connect_to_apns;
+                }
             }
             return [200, [], ['Accepted']];
         }
