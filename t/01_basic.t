@@ -27,7 +27,9 @@ tcp_server undef, $apns_port, sub {
 
             $handle->push_read( chunk => 4, sub {
                 my $expiry = unpack('N', $_[1]);
-                is( $expiry, time() + 3600 * 24, 'expiry ok');
+                my $diff = $expiry - (time() + 3600*24);
+
+                ok 0 <= $diff && $diff < 5, 'expiry ok';
 
                 $handle->push_read( chunk => 2, sub {
                     is($_[1], pack('n', 32), 'token size ok');
