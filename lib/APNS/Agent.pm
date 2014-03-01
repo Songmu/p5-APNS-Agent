@@ -63,15 +63,15 @@ sub to_app {
             }
             return [400, [], ['BAD REQUEST']] unless $payload;
 
-            for my $t (split /,/, $token) {
-                push @{$self->_queue}, [$t, $payload];
-                infof "event:payload queued\ttoken:%s", $t;
-                if ($self->__apns->connected) {
-                    $self->_sending;
-                }
-                else {
-                    $self->_connect_to_apns;
-                }
+            my @payloads = map {[$_, $payload]} split /,/, $token;
+            push @{$self->_queue}, @payloads;
+
+            infof "event:payload queued\ttoken:%s", $token;
+            if ($self->__apns->connected) {
+                $self->_sending;
+            }
+            else {
+                $self->_connect_to_apns;
             }
             return [200, [], ['Accepted']];
         }
