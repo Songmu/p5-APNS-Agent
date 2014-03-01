@@ -29,6 +29,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
             }
         },
         disconnect_interval => sub { 60 },
+        send_interval       => sub { 0.01 },
         _sent_cache         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
         __apns              => '_build_apns',
@@ -63,13 +64,12 @@ sub to_app {
             return [400, [], ['BAD REQUEST']] unless $payload;
 
             for my $t (split /,/, $token) {
+                push @{$self->_queue}, [$t, $payload];
+                infof "event:payload queued\ttoken:%s", $t;
                 if ($self->__apns->connected) {
-                    $self->_send($t, $payload);
-                    infof "event:payload accepted\ttoken:%s", $t;
+                    $self->_sending;
                 }
                 else {
-                    infof "event:push queue";
-                    push @{$self->_queue}, [$t, $payload];
                     $self->_connect_to_apns;
                 }
             }
@@ -106,10 +106,7 @@ sub _build_apns {
             $self->_disconnect_timer($self->_build_disconnect_timer);
 
             if (@{$self->_queue}) {
-                while (my $q = shift @{$self->_queue}) {
-                    $self->_send(@$q);
-                    infof "event:sent from queue\ttoken:".$q->[0];
-                }
+                $self->_sending;
             }
         },
         on_error_response => sub {
@@ -152,6 +149,24 @@ sub _build_disconnect_timer {
         );
     }
     else { undef }
+}
+
+sub _sending {
+    my $self = shift;
+
+    $self->{_send_timer} ||= AnyEvent->timer(
+        after    => $self->send_interval,
+        interval => $self->send_interval,
+        cb       => sub {
+            my $msg = shift @{ $self->_queue };
+            if ($msg) {
+                $self->_send(@$msg);
+            }
+            else {
+                delete $self->{_send_timer};
+            }
+        },
+    );
 }
 
 sub _send {
