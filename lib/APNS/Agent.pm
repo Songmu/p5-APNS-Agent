@@ -34,6 +34,7 @@ use Class::Accessor::Lite::Lazy 0.03 (
         _sent_cache         => sub { Cache::LRU->new(size => 10000) },
         _queue              => sub { [] },
         __apns              => '_build_apns',
+        _sent               => sub { 0 },
     },
     rw => [qw/_last_sent_at _disconnect_timer/],
 );
@@ -91,8 +92,16 @@ sub _do_main {
 sub _do_monitor {
     my ($self, $req) = @_;
 
-    # tobe implemented
-    return [200, [], ['OK']];
+    my $result = {
+        sent   => $self->_sent,
+        queued => scalar( @{ $self->_queue } ),
+    };
+    my $body = encode_json($result);
+
+    return [200, [
+        'Content-Type'   => 'application/json; charset=utf-8',
+        'Content-Length' => length($body),
+    ], [$body]];
 }
 
 sub _build_apns {
@@ -213,6 +222,7 @@ sub _send {
         });
         $self->_last_sent_at(time);
         infof "event:send\ttoken:$token\tidentifier:$identifier";
+        $self->{_sent}++;
         $identifier;
     }
 }

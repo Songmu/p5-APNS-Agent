@@ -79,7 +79,30 @@ test_psgi
 
         my $res = $cb->($req);
         like $res->content, qr/Accepted/;
+
+        subtest 'monitor' => sub {
+            my $req = GET 'http://localhost/monitor';
+
+            my $res = $cb->($req);
+            ok $res->is_success;
+            my $result = decode_json($res->content);
+
+            is $result->{sent}, 0;
+            is $result->{queued}, 1;
+        };
+
         $cv->recv;
+
+        subtest 'monitor after sent' => sub {
+            my $req = GET 'http://localhost/monitor';
+
+            my $res = $cb->($req);
+            ok $res->is_success;
+            my $result = decode_json($res->content);
+
+            is $result->{sent}, 1;
+            is $result->{queued}, 0;
+        };
 
         ok $apns_agent->__apns->connected;
         ok %{ $apns_agent->_sent_cache->{_entries} };
