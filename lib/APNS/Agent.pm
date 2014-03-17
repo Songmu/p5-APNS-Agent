@@ -66,7 +66,7 @@ sub _do_main {
     if (my $payload_json = $req->param('payload') ) {
         state $json_driver = JSON::XS->new->utf8;
         local $@;
-        my $payload = eval { $json_driver->decode($payload_json) };
+        $payload = eval { $json_driver->decode($payload_json) };
         return [400, [], ['BAD REQUEST']] if $@;
     }
     elsif (my $alert = $req->param('alert')) {
