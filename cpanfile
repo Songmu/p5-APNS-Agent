@@ -7,6 +7,7 @@ requires 'JSON::XS';
 requires 'Log::Minimal';
 requires 'Plack::Loader';
 requires 'Plack::Request';
+requires 'Router::Boom::Method';
 requires 'feature';
 requires 'perl', '5.010_000';
 
